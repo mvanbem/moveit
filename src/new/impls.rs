@@ -24,7 +24,8 @@ use crate::new::MoveNew;
 use crate::new::Swap;
 
 macro_rules! trivial_move {
-  ($($ty:ty $(where [$($targs:tt)*])?),* $(,)?) => {$(
+  ($($(#[$attr:meta])* $ty:ty $(where [$($targs:tt)*])?),* $(,)?) => {$(
+    $(#[$attr])*
     unsafe impl<$($($targs)*)?> MoveNew for $ty {
       unsafe fn move_new(
         src: Pin<MoveRef<Self>>,
@@ -36,6 +37,7 @@ macro_rules! trivial_move {
       }
     }
 
+    $(#[$attr])*
     impl<$($($targs)*)?> Swap for $ty {
       fn swap_with(self: Pin<&mut Self>, that: Pin<&mut Self>) {
         unsafe {
@@ -86,16 +88,27 @@ macro_rules! trivial_copy {
 trivial_move! {
   &mut T where [T: ?Sized],
 
+  #[cfg(target_has_atomic = "8")]
   core::sync::atomic::AtomicI8,
+  #[cfg(target_has_atomic = "16")]
   core::sync::atomic::AtomicI16,
+  #[cfg(target_has_atomic = "32")]
   core::sync::atomic::AtomicI32,
+  #[cfg(target_has_atomic = "64")]
   core::sync::atomic::AtomicI64,
+  #[cfg(target_has_atomic = "ptr")]
   core::sync::atomic::AtomicIsize,
+  #[cfg(target_has_atomic = "8")]
   core::sync::atomic::AtomicU8,
+  #[cfg(target_has_atomic = "16")]
   core::sync::atomic::AtomicU16,
+  #[cfg(target_has_atomic = "32")]
   core::sync::atomic::AtomicU32,
+  #[cfg(target_has_atomic = "64")]
   core::sync::atomic::AtomicU64,
+  #[cfg(target_has_atomic = "ptr")]
   core::sync::atomic::AtomicUsize,
+  #[cfg(target_has_atomic = "ptr")]
   core::sync::atomic::AtomicPtr<T> where [T],
 }
 
