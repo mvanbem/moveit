@@ -26,6 +26,7 @@ use core::pin::Pin;
 #[cfg(doc)]
 use {crate::new, core::ops::DerefMut};
 
+#[cfg(feature = "alloc")]
 use alloc::{boxed::Box, rc::Rc, sync::Arc};
 
 mod copy_new;
@@ -170,6 +171,7 @@ pub trait Emplace<T>: Sized + Deref {
     -> Result<Self::Output, N::Error>;
 }
 
+#[cfg(feature = "alloc")]
 impl<T> Emplace<T> for Box<T> {
   type Output = Pin<Self>;
 
@@ -187,6 +189,7 @@ impl<T> Emplace<T> for Box<T> {
   }
 }
 
+#[cfg(feature = "alloc")]
 impl<T> Emplace<T> for Rc<T> {
   type Output = Pin<Self>;
 
@@ -204,6 +207,7 @@ impl<T> Emplace<T> for Rc<T> {
   }
 }
 
+#[cfg(feature = "alloc")]
 impl<T> Emplace<T> for Arc<T> {
   type Output = Pin<Self>;
 
